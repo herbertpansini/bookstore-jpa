@@ -1,50 +1,33 @@
 package com.bookstore.jpa.services;
 
+import com.bookstore.jpa.dtos.BookDto;
 import com.bookstore.jpa.dtos.BookRecordDto;
-import com.bookstore.jpa.models.BookModel;
-import com.bookstore.jpa.models.ReviewModel;
-import com.bookstore.jpa.repositories.AuthorRepository;
+import com.bookstore.jpa.mappers.BookMapper;
 import com.bookstore.jpa.repositories.BookRepository;
-import com.bookstore.jpa.repositories.PublisherRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class BookService {
     private final BookRepository bookRepository;
-    private final AuthorRepository authorRepository;
-    private final PublisherRepository publisherRepository;
+    private final BookMapper bookMapper;
 
-    public BookService(BookRepository bookRepository, AuthorRepository authorRepository, PublisherRepository publisherRepository) {
-        this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
-        this.publisherRepository = publisherRepository;
+    @Transactional(readOnly = true)
+    public Page<BookDto> getAllBooks(Pageable pageable) {
+        return this.bookRepository.findAll(pageable).map(this.bookMapper::bookModelToBookDto);
     }
 
-    public List<BookModel> getAllBooks() {
-        return this.bookRepository.findAll();
+    public BookDto saveBook(BookRecordDto bookRecordDto) {
+        return this.bookMapper.bookModelToBookDto(this.bookRepository.save(this.bookMapper.bookRecordDtoToBookModel(bookRecordDto)));
     }
 
-    @Transactional
-    public BookModel saveBook(BookRecordDto bookRecordDto) {
-        BookModel book = new BookModel();
-        book.setTitle(bookRecordDto.title());
-        book.setPublisher(this.publisherRepository.findById(bookRecordDto.publisherId()).get());
-        book.setAuthors(this.authorRepository.findAllById(bookRecordDto.authorIds()).stream().collect(Collectors.toSet()));
-
-        ReviewModel reviewModel = new ReviewModel();
-        reviewModel.setComment(bookRecordDto.reviewComment());
-        reviewModel.setBook(book);
-        book.setReview(reviewModel);
-
-        return this.bookRepository.save(book);
-    }
-
-    @Transactional
     public void deleteBook(UUID id) {
         this.bookRepository.deleteById(id);
     }

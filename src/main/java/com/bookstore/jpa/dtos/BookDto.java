@@ -1,7 +1,6 @@
 package com.bookstore.jpa.dtos;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,16 +13,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookRecordDto {
-    @NotBlank
+public class BookDto {
+    @Id
+    UUID id;
     String title;
-
-    @NotNull
-    UUID publisherId;
-
-    @NotNull
-    Set<UUID> authorIds = new HashSet<>();
-
-    @NotBlank
-    String reviewComment;
+    PublisherDto publisher;
+    Set<AuthorDto> authors = new HashSet<>();
+    ReviewDto review;
 }

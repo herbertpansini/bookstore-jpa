@@ -1,5 +1,6 @@
 package com.bookstore.jpa.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +10,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -17,41 +22,21 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "TB_PUBLISHER")
+@Getter
+@Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PublisherModel implements Serializable {
-    private static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    UUID id;
 
     @Column(nullable = false, unique = true)
-    private String name;
+    String name;
 
+    @JsonIgnoreProperties(value = {"publisher"}, allowSetters = true)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY)
-    private Set<BookModel> books = new HashSet<>();
-
-    public UUID getId() {
-        return this.id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<BookModel> getBooks() {
-        return this.books;
-    }
-
-    public void setBooks(Set<BookModel> books) {
-        this.books = books;
-    }
+    Set<BookModel> books = new HashSet<>();
 }
