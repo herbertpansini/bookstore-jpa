@@ -5,12 +5,12 @@ import com.bookstore.jpa.dtos.BookRecordDto;
 import com.bookstore.jpa.mappers.BookMapper;
 import com.bookstore.jpa.repositories.BookRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -20,8 +20,8 @@ public class BookService {
     private final BookMapper bookMapper;
 
     @Transactional(readOnly = true)
-    public Page<BookDto> getAllBooks(Pageable pageable) {
-        return this.bookRepository.findAll(pageable).map(this.bookMapper::bookModelToBookDto);
+    public List<BookDto> getAllBooks() {
+        return this.bookRepository.findAll().stream().map(this.bookMapper::bookModelToBookDto).collect(Collectors.toList());
     }
 
     public BookDto saveBook(BookRecordDto bookRecordDto) {
